@@ -67,12 +67,26 @@ export class PokemonService {
     if (updatePokemonDto.name)
       updatePokemonDto.name = updatePokemonDto.name.toLocaleLowerCase();
 
-    await pokemon.updateOne(updatePokemonDto, { new: true });
-
-    return { ...pokemon.toJSON(), ...updatePokemonDto };
+    try {
+      await pokemon.updateOne(updatePokemonDto, { new: true });
+      return { ...pokemon.toJSON(), ...updatePokemonDto };
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException(
+          `Pokemon '${JSON.stringify(error.keyValue)}' already exist.`,
+        );
+      }
+      throw new InternalServerErrorException(
+        `Can't create Pokemon - Check logs`,
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pokemon`;
+  async remove(term: string) {
+    // const pokemon = await this.findOne(term);
+    // await pokemon.deleteOne( term );
+    return {
+      term,
+    };
   }
 }
