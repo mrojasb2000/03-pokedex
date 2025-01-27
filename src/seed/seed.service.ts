@@ -1,40 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import axios, { AxiosInstance } from 'axios';
+import { AxiosAdapter } from 'src/common/adapters/axios.adapter';
+
 import { PokeResponse } from './interfaces/poke-response.interface';
 import { PokemonService } from 'src/pokemon/pokemon.service';
-// import { CreatePokemonDto } from 'src/pokemon/dto';
 
 @Injectable()
 export class SeedService {
-  constructor(private readonly pokemonService: PokemonService) {}
-
-  private readonly axios: AxiosInstance = axios;
+  constructor(
+    private readonly pokemonService: PokemonService,
+    private readonly http: AxiosAdapter,
+  ) {}
 
   async findAll() {
     await this.pokemonService.removeAll();
 
-    const { data } = await this.axios.get<PokeResponse>(
-      'https://pokeapi.co/api/v2/pokemon?limit=10',
+    const data = await this.http.get<PokeResponse>(
+      'https://pokeapi.co/api/v2/pokemon?limit=650',
     );
 
-    //const insertPromiseArray = [];
     const pokemonToInsert: { name: string; no: number }[] = [];
 
     data.results.forEach(({ name, url }) => {
       const segments = url.split('/');
       const no = Number(segments[segments.length - 2]);
-      // const createPokemonDto: CreatePokemonDto = {
-      //   name,
-      //   no,
-      // };
-      console.log({ name, no });
-      //this.pokemonService.create(createPokemonDto);
-      //insertPromiseArray.push(this.pokemonService.create(createPokemonDto));
       pokemonToInsert.push({ name, no });
     });
-
-    // Insert records simultaneously
-    // await Promise.all(insertPromiseArray);
 
     await this.pokemonService.insertMany(pokemonToInsert);
 
