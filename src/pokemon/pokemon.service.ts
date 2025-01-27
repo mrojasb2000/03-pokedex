@@ -86,6 +86,10 @@ export class PokemonService {
     };
   }
 
+  async insertMany(data: { name: string; no: number }[]) {
+    this.pokemonModel.insertMany(data);
+  }
+
   private handlerException(error: any) {
     if (error.code === 11000) {
       throw new BadRequestException(

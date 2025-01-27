@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { PokeResponse } from './interfaces/poke-response.interface';
 import { PokemonService } from 'src/pokemon/pokemon.service';
-import { CreatePokemonDto } from 'src/pokemon/dto';
+// import { CreatePokemonDto } from 'src/pokemon/dto';
 
 @Injectable()
 export class SeedService {
@@ -17,22 +17,26 @@ export class SeedService {
       'https://pokeapi.co/api/v2/pokemon?limit=10',
     );
 
-    const insertPromiseArray = [];
+    //const insertPromiseArray = [];
+    const pokemonToInsert: { name: string; no: number }[] = [];
 
     data.results.forEach(({ name, url }) => {
       const segments = url.split('/');
       const no = Number(segments[segments.length - 2]);
-      const createPokemonDto: CreatePokemonDto = {
-        name,
-        no,
-      };
+      // const createPokemonDto: CreatePokemonDto = {
+      //   name,
+      //   no,
+      // };
       console.log({ name, no });
       //this.pokemonService.create(createPokemonDto);
-      insertPromiseArray.push(this.pokemonService.create(createPokemonDto));
+      //insertPromiseArray.push(this.pokemonService.create(createPokemonDto));
+      pokemonToInsert.push({ name, no });
     });
 
     // Insert records simultaneously
-    await Promise.all(insertPromiseArray);
+    // await Promise.all(insertPromiseArray);
+
+    await this.pokemonService.insertMany(pokemonToInsert);
 
     return data.results;
   }
