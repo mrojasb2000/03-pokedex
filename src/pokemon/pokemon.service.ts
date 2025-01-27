@@ -78,6 +78,14 @@ export class PokemonService {
     }
   }
 
+  async removeAll() {
+    const { deletedCount } = await this.pokemonModel.deleteMany({});
+
+    return {
+      deletedCount,
+    };
+  }
+
   private handlerException(error: any) {
     if (error.code === 11000) {
       throw new BadRequestException(
